@@ -5,7 +5,7 @@ Este proyecto es una implementación simple de un sistema de gestión de bibliot
 ## Estructura del Proyecto
 El proyecto está organizado en varios módulos para facilitar la comprensión y mantenimiento del código:
 
-'''
+```
 ├── app
 │   └── Main.hs
 ├── src
@@ -14,21 +14,22 @@ El proyecto está organizado en varios módulos para facilitar la comprensión y
 │   │   ├── Library.hs
 │   │   └── Member.hs
 │   ├── Utils.hs
-│   └── LibraryManagementSystem.cabal
+│   
 ├── test
 │   └── MemberTest.hs
+├── LibraryManagementSystem.cabal
 ├── LICENSE
 └── README.md
-'''
+```
 
 # Uso del Programa
 Al ejecutar la aplicación, se crea una biblioteca vacía. Luego, se pueden añadir libros y miembros, realizar operaciones como préstamos y devoluciones, y actualizar la información de libros y miembros.
 
 # Ejecución del Programa
 
-'''
+```
 $ stack build
-'''
+```
 
 # Operaciones Disponibles
 * Añadir Libro: Se pueden añadir libros a la biblioteca.
