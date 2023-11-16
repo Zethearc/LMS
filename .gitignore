@@ -1,23 +1,29 @@
-dist
-dist-*
-cabal-dev
+# Haskell
+dist/
+dist-newstyle/
+cabal.project.local
 *.o
 *.hi
-*.hie
-*.chi
-*.chs.h
-*.dyn_o
-*.dyn_hi
-.hpc
-.hsenv
-.cabal-sandbox/
-cabal.sandbox.config
-*.prof
-*.aux
-*.hp
-*.eventlog
+
+# Stack
 .stack-work/
-cabal.project.local
-cabal.project.local~
-.HTF/
-.ghc.environment.*
+
+# GHC
+.packages/
+.cache/
+
+# Haddock
+.hpc/
+.haddock/
+
+# Cabal
+*.cabal.hi
+*.cabal.i
+
+# System
+*.swp
+*~
+
+# Editors
+.idea/
+.vscode/
