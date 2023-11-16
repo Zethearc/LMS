@@ -1,0 +1,2 @@
+([Book {bookId = 0, title = "1984", author = "George Orwell", available = True}, Book {bookId = 1, title = "To Kill a Mockingbird", author = "Harper Lee", available = True}],
+ [Member {memberId = 0, memberName = "Alice Johnson", memberEmail = "alice.j@example.com", borrowedBooks = []}, Member {memberId = 1, memberName = "Bob Smith", memberEmail = "bob.smith@example.com", borrowedBooks = []}])

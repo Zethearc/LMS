@@ -1,5 +1,6 @@
 module Data.Library
-    ( createLibrary
+    ( Library
+    ,createLibrary
     , removeBook
     ) where
 

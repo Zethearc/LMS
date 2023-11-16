@@ -17,8 +17,8 @@ data Member = Member
     { memberId :: MemberId
     , memberName :: String
     , memberEmail :: String
-    , borrowedBooks :: [Book]  -- Nuevo campo para libros prestados al miembro
-    } deriving (Show)
+    , borrowedBooks :: [Book]
+    } deriving (Show, Read) 
 
 type MemberId = Int
 

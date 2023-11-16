@@ -11,7 +11,7 @@ executable library-management-system
   main-is:             Main.hs
   hs-source-dirs:      src, app
   other-modules:       Data.Book, Data.Member, Data.Library, Utils
-  build-depends:       base, containers
+  build-depends:       base, containers, directory
 
 test-suite tests
   type: exitcode-stdio-1.0

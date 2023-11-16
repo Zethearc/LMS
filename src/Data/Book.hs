@@ -1,18 +1,18 @@
 module Data.Book
-    ( Book (..)         -- Exporta todos los constructores de datos del tipo Book
+    ( Book (..)
     , addBook
-    , createBook        -- Función para crear un nuevo libro
-    , readBook          -- Función para mostrar la información de un libro
-    , updateBook        -- Función para actualizar la información de un libro
-    , deleteBook        -- Función para marcar un libro como no disponible
+    , createBook
+    , readBook
+    , updateBook
+    , deleteBook
     ) where
 
 data Book = Book
-    { bookId :: Int      -- Identificador único del libro
-    , title :: String    -- Título del libro
-    , author :: String   -- Autor del libro
-    , available :: Bool  -- Indica si el libro está disponible
-    } deriving (Show)
+    { bookId :: Int
+    , title :: String
+    , author :: String
+    , available :: Bool
+    } deriving (Show, Read)
 
 addBook :: Book -> [Book] -> [Book]
 addBook book books = book : books
