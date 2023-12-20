@@ -170,10 +170,11 @@ handleCategoryOptions library category = do
                     memberIdToRemove <- readLn :: IO Int
                     removeMemberFromDatabase library memberIdToRemove
                 "Transacciones" -> do
-                    transactions <- loadTransactions library
-                    mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
-                    -- Agrega aquí la lógica para "Eliminar" en la categoría de "Transacciones" si es necesario
-                    handleCategoryOptions library category
+                    members <- loadMembers library
+                    mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+                    putStrLn "Ingrese el ID del miembro que desea devolver el libro préstamo:"
+                    memberId <- readLn :: IO Int
+                    returnBook library memberId 
                 _ -> putStrLn "Categoría no válida."
             
         "3" -> do
@@ -196,9 +197,7 @@ handleCategoryOptions library category = do
                     handleCategoryOptions library category
                     
                 "Transacciones" -> do
-                    transactions <- loadTransactions library
-                    mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
-                    -- Agrega aquí la lógica para "Modificar" en la categoría de "Transacciones" si es necesario
+
                     handleCategoryOptions library category
                 _ -> putStrLn "Categoría no válida."
             

@@ -16,6 +16,7 @@ module Data.Library
     , deleteLibrary
     , modifyLibraryName
     , borrowBook
+    , returnBook
     ) where
 
 
@@ -24,10 +25,11 @@ import Control.Exception (catch, tryJust, IOException)
 import Control.Monad (guard, unless)
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, renameDirectory)
 import System.IO.Error (isAlreadyInUseError)
-import Data.Book (decreaseStock, Book(..)) 
-import Data.Member (addBorrowedBook, updateMembers, Member(..), MemberId)  
+import Data.Book (decreaseStock, decreaseBookStock, increaseStock, increaseBookStock, Book(..)) 
+import Data.Member (addBorrowedBook , updateMembers, returnBorrowedBook, Member(..), MemberId)  
 import Data.Transaction (Transaction(..))
 import Data.List (find)
+import Text.Read (readMaybe)
 import Utils
 
 data Library = Library
@@ -318,3 +320,47 @@ saveMembers library members =
 saveBooks :: Library -> [Book] -> IO ()
 saveBooks library books =
     writeFile (bookDB library) (unlines $ map show books)
+
+returnBook :: Library -> Int -> IO ()
+returnBook library memberId = do
+    members <- loadMembers library
+    books <- loadBooks library
+
+    putStrLn "Miembros cargados:"
+    mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+
+    -- Obtener el miembro correspondiente
+    let maybeMember = find (\member -> memberId == memberId) members
+
+    case maybeMember of
+        Just member -> do
+            -- Verificar si el miembro tiene libros prestados
+            if not (null (borrowedBooks member))
+                then do
+                    putStrLn "Libros prestados:"
+                    mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] (borrowedBooks member))
+
+                    -- Obtener el bookIdToReturn del usuario
+                    putStrLn "\nIngrese el bookId del libro a devolver:"
+                    bookIdToReturnStr <- getLine
+                    let bookIdToReturn = readMaybe bookIdToReturnStr :: Maybe Int
+
+                    case bookIdToReturn of
+                        Just bId -> do
+                            -- Verificar si el libro está en la lista de libros prestados
+                            case find (\b -> bId == bookId b) (borrowedBooks member) of
+                                Just selectedBook -> do
+                                    let updatedMember = returnBorrowedBook member selectedBook
+                                    let updatedMembers = updateMembers members updatedMember
+                                    saveMembers library updatedMembers
+                                    saveBooks library (increaseStock books bId)
+                                    putStrLn "¡Devolución realizada con éxito!"
+                                Nothing ->
+                                    putStrLn "Error: El libro con el bookId ingresado no está en la lista de libros prestados."
+                        Nothing ->
+                            putStrLn "Error: Ingrese un número válido como bookId."
+
+                else
+                    putStrLn "El miembro no tiene libros prestados."
+        Nothing ->
+            putStrLn "Error: Miembro no encontrado."

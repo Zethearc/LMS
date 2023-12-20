@@ -2,6 +2,8 @@ module Data.Book
     ( Book(..)
     , decreaseStock
     , decreaseBookStock
+    , increaseStock
+    , increaseBookStock
     ) where
 
 import Data.Time (UTCTime)
@@ -24,3 +26,10 @@ decreaseStock books bookIdToBorrow =
 
 decreaseBookStock :: Book -> Book
 decreaseBookStock book = book { stock = stock book - 1 }
+
+increaseStock :: [Book] -> Int -> [Book]
+increaseStock books bookIdToReturn =
+    map (\b -> if bookId b == bookIdToReturn then increaseBookStock b else b) books
+
+increaseBookStock :: Book -> Book
+increaseBookStock book = book { stock = stock book + 1 }

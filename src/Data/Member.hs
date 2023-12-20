@@ -3,10 +3,11 @@ module Data.Member
     , MemberId
     , addBorrowedBook
     , updateMembers
+    , returnBorrowedBook
     ) where
 
 import Data.List (find)
-import Data.Book (Book, bookId, available, borrower)  -- Asegúrate de importar bookId, available y borrower desde Data.Book
+import Data.Book (Book(..), bookId, available, borrower)
 
 data Member = Member
     { memberId :: MemberId
@@ -30,6 +31,13 @@ addBorrowedBook books member bookIdToBorrow =
         Nothing ->
             member  -- El libro no fue encontrado, no es necesario agregarlo
 
+          
 updateMembers :: [Member] -> Member -> [Member]
 updateMembers members updatedMember =
     map (\m -> if memberId m == memberId updatedMember then updatedMember else m) members
+
+-- Función para devolver un libro prestado
+returnBorrowedBook :: Member -> Book -> Member
+returnBorrowedBook member bookToReturn =
+    let updatedBooks = filter (\b -> bookId b /= bookId bookToReturn) (borrowedBooks member)
+    in member { borrowedBooks = updatedBooks }
