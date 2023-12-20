@@ -139,10 +139,19 @@ handleCategoryOptions library category = do
                     addNewMemberToDatabase library
                     handleCategoryOptions library category
                 "Transacciones" -> do
-                    transactions <- loadTransactions library
-                    mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
-                    -- Agrega aquí la lógica para "Ingresar" en la categoría de "Transacciones" si es necesario
+                    books <- loadBooks library
+                    mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
+                    putStrLn "Ingrese el ID del libro que desea prestar:"
+                    bookIdToBorrow <- readLn :: IO Int
+                
+                    members <- loadMembers library
+                    mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+                    putStrLn "Ingrese el ID del miembro que desea realizar el préstamo:"
+                    memberId <- readLn :: IO Int
+                
+                    borrowBook library memberId bookIdToBorrow
                     handleCategoryOptions library category
+                    
                 _ -> putStrLn "Categoría no válida."
         
         "2" -> do

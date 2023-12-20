@@ -15,14 +15,17 @@ module Data.Library
     , modifyMemberInDatabase
     , deleteLibrary
     , modifyLibraryName
+    , borrowBook
     ) where
 
+
+import Data.Time.Clock (getCurrentTime)
 import Control.Exception (catch, tryJust, IOException)
 import Control.Monad (guard, unless)
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, renameDirectory)
 import System.IO.Error (isAlreadyInUseError)
-import Data.Book (Book(..))
-import Data.Member (Member(..))
+import Data.Book (decreaseStock, Book(..)) 
+import Data.Member (addBorrowedBook, updateMembers, Member(..), MemberId)  
 import Data.Transaction (Transaction(..))
 import Data.List (find)
 import Utils
@@ -274,3 +277,44 @@ modifyMemberInDatabase library memberIdToModify = do
             print modifiedMember
             writeFile (memberDB library) (unlines $ map show updatedLibrary)
         Nothing -> putStrLn $ "Error: No se encontró ningún miembro con el ID " ++ show memberIdToModify
+
+borrowBook :: Library -> Int -> Int -> IO ()
+borrowBook library memberId bookIdToBorrow = do
+    members <- loadMembers library
+    books <- loadBooks library
+
+    putStrLn "Miembros cargados:"
+    mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+
+    putStrLn "\nLibros cargados:"
+    mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
+
+    -- Obtener el miembro y el libro correspondientes
+    let maybeMember = find (\member -> memberId == memberId) members
+    let maybeBook = find (\b -> bookIdToBorrow == bookId b) books
+
+    case (maybeMember, maybeBook) of
+        (Just member, Just book) -> do
+            -- Verificar en la base de datos si hay suficiente stock
+            case find (\dbBook -> bookIdToBorrow == bookId dbBook) books of
+                Just dbBook ->
+                    if stock dbBook > 0
+                        then do
+                            -- Lógica de préstamo
+                            let updatedMember = addBorrowedBook books member bookIdToBorrow
+                            let updatedMembers = updateMembers members updatedMember
+                            saveMembers library updatedMembers
+                            saveBooks library (decreaseStock books bookIdToBorrow)
+                            putStrLn "¡Préstamo realizado con éxito!"
+                        else putStrLn "Error: No hay unidades disponibles en stock para este libro."
+                Nothing -> putStrLn "Error: Libro no encontrado en la base de datos."
+
+        _ -> putStrLn "Error: Miembro o libro no encontrado."
+
+saveMembers :: Library -> [Member] -> IO ()
+saveMembers library members =
+    writeFile (memberDB library) (unlines $ map show members)
+
+saveBooks :: Library -> [Book] -> IO ()
+saveBooks library books =
+    writeFile (bookDB library) (unlines $ map show books)

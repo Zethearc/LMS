@@ -1,5 +1,7 @@
 module Data.Book
     ( Book(..)
+    , decreaseStock
+    , decreaseBookStock
     ) where
 
 import Data.Time (UTCTime)
@@ -15,3 +17,10 @@ data Book = Book
     , dueDate :: Maybe UTCTime
     , initialValue :: Double
     } deriving (Show, Read)
+
+decreaseStock :: [Book] -> Int -> [Book]
+decreaseStock books bookIdToBorrow =
+    map (\b -> if bookId b == bookIdToBorrow then decreaseBookStock b else b) books
+
+decreaseBookStock :: Book -> Book
+decreaseBookStock book = book { stock = stock book - 1 }
