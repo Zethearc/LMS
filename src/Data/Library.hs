@@ -7,17 +7,20 @@ module Data.Library
     , loadBooks
     , loadMembers
     , loadTransactions
-    , saveBooks
-    , saveMembers
-    , saveTransactions
+    , addNewBook
     ) where
 
+import Control.Monad (guard)
+import System.IO
 import Control.Exception
+import Control.Concurrent (threadDelay)  -- Agrega esta línea
 import Text.Read (readMaybe)
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import Data.Book (Book(..))
 import Data.Member (Member(..))
 import Data.Transaction (Transaction(..))
+import Data.Time.Clock (UTCTime, getCurrentTime)
+import System.IO.Error (isAlreadyInUseError)
 
 data Library = Library
     { libraryName :: String
@@ -63,7 +66,6 @@ loadLibrary name = do
 -- Función para guardar una biblioteca
 saveLibrary :: Library -> IO ()
 saveLibrary library = do
-    -- Puedes agregar aquí la lógica para salvar libros, miembros y transacciones si es necesario
     writeFile (bookDB library) ""
     writeFile (memberDB library) ""
     writeFile (transactionDB library) ""
@@ -80,28 +82,11 @@ loadMembers library = do
     content <- readFile (memberDB library)
     return $ if null content then [] else map read $ lines content
 
+-- Función para cargar transacciones desde la biblioteca
 loadTransactions :: Library -> IO [Transaction]
 loadTransactions library = do
     content <- readFile (transactionDB library)
     return $ if null content then [] else map read $ lines content
-    
--- Función para guardar libros en la biblioteca
-saveBooks :: Library -> [Book] -> IO ()
-saveBooks library books = do
-    let content = show books
-    writeFile (bookDB library) content
-
--- Función para guardar miembros en la biblioteca
-saveMembers :: Library -> [Member] -> IO ()
-saveMembers library members = do
-    let content = show members
-    writeFile (memberDB library) content
-
--- Función para guardar transacciones en la biblioteca
-saveTransactions :: Library -> [Transaction] -> IO ()
-saveTransactions library transactions = do
-    let content = show transactions
-    writeFile (transactionDB library) content
 
 -- Función auxiliar para escribir en un archivo solo si no existe
 writeFileIfNotExists :: FilePath -> String -> IO ()
@@ -110,3 +95,40 @@ writeFileIfNotExists filePath content = do
     if not exists
         then writeFile filePath content
         else return ()
+
+-- Lógica para agregar un nuevo libro
+addNewBook :: Library -> IO ()
+addNewBook library = do
+    putStrLn "Ingrese los detalles del nuevo libro:"
+    putStrLn "Título:"
+    title <- getLine
+    putStrLn "Autor:"
+    author <- getLine
+    putStrLn "Stock:"
+    stock <- readLn :: IO Int
+    putStrLn "Valor Inicial:"
+    initialValue <- readLn :: IO Double
+
+    -- Crea un nuevo libro con el siguiente ID disponible
+    let newBook = Book
+            { bookId = 0
+            , title = title
+            , author = author
+            , available = True
+            , stock = stock
+            , borrower = Nothing
+            , dueDate = Nothing
+            , initialValue = initialValue
+            }
+
+    -- Llama a la función para agregar el nuevo libro a la base de datos
+    addBookToDatabase library newBook
+
+-- Función para agregar un nuevo libro a la base de datos
+addBookToDatabase :: Library -> Book -> IO ()
+addBookToDatabase library newBook = do
+    result <- tryJust (guard . isAlreadyInUseError) $ withFile (bookDB library) AppendMode $ \handle ->
+        hPutStrLn handle (show newBook)
+    case result of
+        Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el libro."
+        Right _ -> putStrLn "Libro agregado con éxito."

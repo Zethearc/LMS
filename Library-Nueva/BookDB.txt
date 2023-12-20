@@ -1,10 +1,2 @@
-Book {bookId = 1, title = "El señor de los anillos", author = "J.R.R. Tolkien", available = True, stock = 10, borrower = Nothing, dueDate = Nothing, initialValue = 29.99}
-Book {bookId = 2, title = "Cien años de soledad", author = "Gabriel García Márquez", available = True, stock = 5, borrower = Nothing, dueDate = Nothing, initialValue = 19.99}
-Book {bookId = 3, title = "1984", author = "George Orwell", available = True, stock = 8, borrower = Nothing, dueDate = Nothing, initialValue = 24.99}
-Book {bookId = 4, title = "To Kill a Mockingbird", author = "Harper Lee", available = True, stock = 15, borrower = Nothing, dueDate = Nothing, initialValue = 14.99}
-Book {bookId = 5, title = "The Great Gatsby", author = "F. Scott Fitzgerald", available = True, stock = 7, borrower = Nothing, dueDate = Nothing, initialValue = 17.99}
-Book {bookId = 6, title = "Pride and Prejudice", author = "Jane Austen", available = True, stock = 12, borrower = Nothing, dueDate = Nothing, initialValue = 21.99}
-Book {bookId = 7, title = "Harry Potter and the Sorcerer's Stone", author = "J.K. Rowling", available = True, stock = 20, borrower = Nothing, dueDate = Nothing, initialValue = 27.99}
-Book {bookId = 8, title = "The Hobbit", author = "J.R.R. Tolkien", available = True, stock = 9, borrower = Nothing, dueDate = Nothing, initialValue = 23.99}
-Book {bookId = 9, title = "The Catcher in the Rye", author = "J.D. Salinger", available = True, stock = 6, borrower = Nothing, dueDate = Nothing, initialValue = 18.99}
-Book {bookId = 10, title = "The Chronicles of Narnia", author = "C.S. Lewis", available = True, stock = 11, borrower = Nothing, dueDate = Nothing, initialValue = 25.99}
+Book {bookId = 0, title = "P", author = "P", available = True, stock = 10, borrower = Nothing, dueDate = Nothing, initialValue = 1.0}
+Book {bookId = 0, title = "4", author = "4", available = True, stock = 10, borrower = Nothing, dueDate = Nothing, initialValue = 2.0}
