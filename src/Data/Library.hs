@@ -97,10 +97,11 @@ writeFileIfNotExists filePath content = do
         then writeFile filePath content
         else return ()
 
--- Lógica para agregar un nuevo libro
 addNewBook :: Library -> IO ()
 addNewBook library = do
     putStrLn "Ingrese los detalles del nuevo libro:"
+    putStrLn "ISBN:"
+    isbn <- readLn :: IO Int -- Change here to read as Int
     putStrLn "Título:"
     title <- getLine
     putStrLn "Autor:"
@@ -110,9 +111,8 @@ addNewBook library = do
     putStrLn "Valor Inicial:"
     initialValue <- readLn :: IO Double
 
-    -- Crea un nuevo libro con el siguiente ID disponible
     let newBook = Book
-            { bookId = 0
+            { bookId = isbn
             , title = title
             , author = author
             , available = True
@@ -122,7 +122,6 @@ addNewBook library = do
             , initialValue = initialValue
             }
 
-    -- Llama a la función para agregar el nuevo libro a la base de datos
     addBookToDatabase library newBook
 
 -- Función para agregar un nuevo libro a la base de datos
