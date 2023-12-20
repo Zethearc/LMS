@@ -10,6 +10,9 @@ module Data.Library
     , addNewBooktoDatabaseBook
     , removeBookFromDatabaseBook
     , modifyBookFromDatabaseBook
+    , addNewMembertoDatabaseMember
+    , removeMemberFromDatabaseMember
+    , modifyMemberFromDatabaseMember
     ) where
 
 import Control.Monad (guard)
@@ -188,3 +191,85 @@ modifyBookFromDatabaseBook library bookIdToModify = do
             putStrLn "Libro guardado en la base de datos."
 
         Nothing -> putStrLn $ "Error: No se encontró ningún libro con el ID " ++ show bookIdToModify
+
+addNewMembertoDatabaseMember :: Library -> IO ()
+addNewMembertoDatabaseMember library = do
+    putStrLn "Ingrese los detalles del nuevo miembro:"
+    putStrLn "ID del Miembro:"
+    memberId <- readLn :: IO Int
+    putStrLn "Nombre del Miembro:"
+    memberName <- getLine
+    putStrLn "Correo Electrónico del Miembro:"
+    memberEmail <- getLine
+
+    let newMember = Member
+            { memberId = memberId
+            , memberName = memberName
+            , memberEmail = memberEmail
+            , borrowedBooks = []
+            }
+
+    addMemberToDatabaseMember library newMember
+
+addMemberToDatabaseMember :: Library -> Member -> IO ()
+addMemberToDatabaseMember library newMember = do
+    result <- tryJust (guard . isAlreadyInUseError) $ withFile (memberDB library) AppendMode $ \handle ->
+        hPutStrLn handle (show newMember)
+    case result of
+        Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el miembro."
+        Right _ -> putStrLn "Miembro agregado con éxito."
+
+removeMemberFromDatabaseMember :: Library -> Int -> IO ()
+removeMemberFromDatabaseMember library memberIdToRemove = do
+    content <- readFile (memberDB library)
+    putStrLn "Contenido leído del archivo:"
+    putStrLn content
+    let members = map read $ lines content :: [Member]
+        memberToRemove = find (\member -> memberId member == memberIdToRemove) members
+    case memberToRemove of
+        Just memberToRemove' -> do
+            let updatedLibrary = filter (\member -> memberId member /= memberIdToRemove) members
+            putStrLn "Miembro(s) antes de la eliminación:"
+            print members
+            putStrLn "Miembro(s) después de la eliminación:"
+            print updatedLibrary
+            writeFile (memberDB library) (unlines $ map show updatedLibrary)
+            putStrLn "Miembro(s) guardado(s) en la base de datos."
+        Nothing -> putStrLn $ "Error: No se encontró ningún miembro con el ID " ++ show memberIdToRemove
+
+modifyMemberFromDatabaseMember :: Library -> Int -> IO ()
+modifyMemberFromDatabaseMember library memberIdToModify = do
+    content <- readFile (memberDB library)
+    putStrLn "Contenido leído del archivo:"
+    putStrLn content
+    let members = map read $ lines content :: [Member]
+        memberToModify = find (\member -> memberId member == memberIdToModify) members
+    case memberToModify of
+        Just memberToModify' -> do
+            putStrLn "Miembro a modificar:"
+            print memberToModify'
+            putStrLn "Ingrese los nuevos detalles del miembro:"
+
+            putStrLn "Nuevo ID del Miembro:"
+            newMemberId <- readLn :: IO Int
+            putStrLn "Nuevo Nombre del Miembro:"
+            newMemberName <- getLine
+            putStrLn "Nuevo Correo Electrónico del Miembro:"
+            newMemberEmail <- getLine
+
+            let modifiedMember = Member
+                    { memberId = newMemberId
+                    , memberName = newMemberName
+                    , memberEmail = newMemberEmail
+                    , borrowedBooks = borrowedBooks memberToModify'
+                    }
+
+                updatedLibrary = map (\member -> if memberId member == memberIdToModify then modifiedMember else member) members
+
+            putStrLn "Miembro modificado:"
+            print modifiedMember
+
+            writeFile (memberDB library) (unlines $ map show updatedLibrary)
+            putStrLn "Miembro guardado en la base de datos."
+
+        Nothing -> putStrLn $ "Error: No se encontró ningún miembro con el ID " ++ show memberIdToModify

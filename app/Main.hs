@@ -89,20 +89,19 @@ handleCategoryOptions library category = do
                     books <- loadBooks library
                     mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
                     addNewBooktoDatabaseBook library 
-                    handleCategoryOptions library category -- ¡Agrega esta línea para mostrar las opciones después de "Ingresar"!
+                    handleCategoryOptions library category
                 "Miembros" -> do
                     members <- loadMembers library
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
-                    -- Agrega aquí la lógica para "Ingresar" en la categoría de "Miembros" si es necesario
-                    handleCategoryOptions library category -- ¡Agrega esta línea para mostrar las opciones después de "Ingresar"!
+                    addNewMembertoDatabaseMember library
+                    handleCategoryOptions library category
                 "Transacciones" -> do
                     transactions <- loadTransactions library
                     mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
                     -- Agrega aquí la lógica para "Ingresar" en la categoría de "Transacciones" si es necesario
-                    handleCategoryOptions library category -- ¡Agrega esta línea para mostrar las opciones después de "Ingresar"!
+                    handleCategoryOptions library category
                 _ -> putStrLn "Categoría no válida."
-            handleCategoryOptions library category
-
+        
         "2" -> do
             -- Lógica para Eliminar en la categoría
             case category of
@@ -115,11 +114,15 @@ handleCategoryOptions library category = do
                 "Miembros" -> do
                     members <- loadMembers library
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+                    putStrLn "Ingrese el ID del miembro que desea eliminar:"
+                    memberIdToRemove <- readLn :: IO Int
+                    removeMemberFromDatabaseMember library memberIdToRemove
                 "Transacciones" -> do
                     transactions <- loadTransactions library
                     mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
+                    -- Agrega aquí la lógica para "Eliminar" en la categoría de "Transacciones" si es necesario
+                    handleCategoryOptions library category
                 _ -> putStrLn "Categoría no válida."
-            handleCategoryOptions library category
             
         "3" -> do
             -- Lógica para Modificar en la categoría
@@ -130,19 +133,24 @@ handleCategoryOptions library category = do
                     putStrLn "Ingrese el ID del libro que desea modificar:"
                     bookIdToModify <- readLn :: IO Int
                     modifyBookFromDatabaseBook library bookIdToModify
-                    handleCategoryOptions library category  -- ¡Agrega esta línea para mostrar las opciones después de "Modificar"!
+                    handleCategoryOptions library category
     
                 "Miembros" -> do
                     members <- loadMembers library
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+                    putStrLn "Ingrese el ID del miembro que desea modificar:"
+                    memberIdToModify <- readLn :: IO Int
+                    modifyMemberFromDatabaseMember library memberIdToModify
+                    handleCategoryOptions library category
+                    
                 "Transacciones" -> do
                     transactions <- loadTransactions library
                     mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
+                    -- Agrega aquí la lógica para "Modificar" en la categoría de "Transacciones" si es necesario
+                    handleCategoryOptions library category
                 _ -> putStrLn "Categoría no válida."
-            handleCategoryOptions library category
+            
         "4" -> showLibraryOptionsIntern library
         _   -> do
             putStrLn "Opción no válida. Por favor, seleccione una opción válida."
             handleCategoryOptions library category
-
-            
