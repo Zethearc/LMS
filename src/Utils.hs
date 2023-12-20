@@ -35,20 +35,12 @@ displayMember member =
     ", Correo electrónico: " ++ memberEmail member ++
     ", Libros prestados: " ++ show (length $ borrowedBooks member)
 
--- Función auxiliar para mostrar una transacción de manera formateada
 displayTransaction :: Transaction -> String
 displayTransaction transaction =
-    case transaction of
-        BorrowTransaction { transactionBorrower = member, borrowedBook = book, transactionDate = date } ->
-            "Tipo: Préstamo" ++
-            ", Miembro: " ++ memberName member ++
-            ", Libro: " ++ title book ++
-            ", Fecha de transacción: " ++ show date
-        ReturnTransaction { returningMember = member, returnedBook = book, transactionDate = date } ->
-            "Tipo: Devolución" ++
-            ", Miembro: " ++ memberName member ++
-            ", Libro: " ++ title book ++
-            ", Fecha de transacción: " ++ show date
+    ", Miembro: " ++ displayMember (transactionMember transaction) ++
+    ", Libro: " ++ displayBook (transactionBook transaction) ++
+    ", Fecha: " ++ show (transactionDate transaction)
+
 
 -- Función para obtener la lista de bibliotecas existentes
 getExistingLibraries :: IO [String]

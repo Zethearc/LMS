@@ -12,6 +12,8 @@ module Data.Library
     , saveTransactions
     ) where
 
+import Control.Exception
+import Text.Read (readMaybe)
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import Data.Book (Book(..))
 import Data.Member (Member(..))
@@ -78,12 +80,11 @@ loadMembers library = do
     content <- readFile (memberDB library)
     return $ if null content then [] else map read $ lines content
 
--- Función para cargar transacciones desde la biblioteca
 loadTransactions :: Library -> IO [Transaction]
 loadTransactions library = do
     content <- readFile (transactionDB library)
-    return $ read content
-
+    return $ if null content then [] else map read $ lines content
+    
 -- Función para guardar libros en la biblioteca
 saveBooks :: Library -> [Book] -> IO ()
 saveBooks library books = do

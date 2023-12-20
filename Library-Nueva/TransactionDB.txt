@@ -1,5 +1,0 @@
-BorrowTransaction { borrower = Member 1 "Juan Perez" "juan@example.com" [], borrowedBook = Book 1 "El señor de los anillos" "J.R.R. Tolkien" True 10 Nothing Nothing 29.99, transactionDate = read "2023-01-01 12:00:00 UTC" }
-BorrowTransaction { borrower = Member 2 "Maria Rodriguez" "maria@example.com" [], borrowedBook = Book 2 "Cien años de soledad" "Gabriel García Márquez" True 5 Nothing Nothing 19.99, transactionDate = read "2023-02-15 15:30:00 UTC" }
-ReturnTransaction { returningMember = Member 1 "Juan Perez" "juan@example.com" [], returnedBook = Book 1 "El señor de los anillos" "J.R.R. Tolkien" True 10 Nothing Nothing 29.99, transactionDate = read "2023-03-20 10:45:00 UTC" }
-ReturnTransaction { returningMember = Member 3 "Carlos Gutierrez" "carlos@example.com" [], returnedBook = Book 3 "1984" "George Orwell" True 8 Nothing Nothing 24.99, transactionDate = read "2023-04-05 09:15:00 UTC" }
-BorrowTransaction { borrower = Member 4 "Ana Martinez" "ana@example.com" [], borrowedBook = Book 4 "To Kill a Mockingbird" "Harper Lee" True 15 Nothing Nothing 14.99, transactionDate = read "2023-05-10 14:00:00 UTC" }

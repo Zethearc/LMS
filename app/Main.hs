@@ -4,7 +4,6 @@ module Main where
 
 import Data.Library
 import Utils
-
 import Data.Book (Book(..))
 import Data.Member (Member(..))
 import Data.Transaction (Transaction(..))
@@ -69,20 +68,27 @@ showLibraryOptionsIntern library = do
             putStrLn "Gestionar Libros"
             books <- loadBooks library
             -- Mostrar los libros en la interfaz gráfica
-            mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)     
+            mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
+            -- Puedes agregar aquí la lógica adicional para gestionar libros según la opción seleccionada
+            showLibraryOptionsIntern library
+
         "2" -> do
             -- Lógica para gestionar miembros
             putStrLn "Gestionar Miembros"
             members <- loadMembers library
             -- Mostrar los miembros en la interfaz gráfica
             mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
-    
+            -- Puedes agregar aquí la lógica adicional para gestionar miembros según la opción seleccionada
+            showLibraryOptionsIntern library
+
         "3" -> do
-            -- Lógica para gestionar transacciones
             putStrLn "Gestionar Transacciones"
             transactions <- loadTransactions library
-            -- Mostrar las transacciones en la interfaz gráfica
-            mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
+            mapM_ (\(index, transactions) -> putStrLn $ show index ++ ". " ++ displayTransaction transactions) (zip [1..] transactions)
+        
+            -- Resto de la lógica
+            showLibraryOptionsIntern library
+            
             
         "4" -> putStrLn "Saliendo del programa."
         _ -> do
