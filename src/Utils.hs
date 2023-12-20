@@ -7,9 +7,12 @@ module Utils
   , getExistingLibraries
   , isLibraryDirectory
   , showOptions
+  , writeFileIfNotExists
   ) where
 
-import System.Directory (getDirectoryContents, createDirectoryIfMissing)
+import Control.Exception (catch, tryJust, IOException)
+import Control.Monad (guard, unless)
+import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, getDirectoryContents)
 import Data.List (isPrefixOf)
 import Data.Book (Book(..))
 import Data.Member (Member(..))
@@ -59,3 +62,9 @@ showOptions _ [] = return ()
 showOptions index (opt:opts) = do
     putStrLn $ show index ++ ". " ++ opt
     showOptions (index + 1) opts
+
+writeFileIfNotExists :: FilePath -> String -> IO ()
+writeFileIfNotExists filePath content = do
+    exists <- doesFileExist filePath
+    unless exists $ writeFile filePath content
+    

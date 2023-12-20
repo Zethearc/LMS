@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Main where
 
 import Data.Library
@@ -10,7 +8,7 @@ import Data.Transaction (Transaction(..))
 
 main :: IO ()
 main = do
-    putStrLn "Bienvenido a la aplicación de biblioteca."
+    putStrLn "¡Bienvenido a la aplicación de biblioteca!"
     showLibraryOptions
 
 -- Función para mostrar las opciones de la biblioteca
@@ -29,45 +27,73 @@ showLibraryOptions = do
 -- Función para manejar la opción seleccionada por el usuario
 handleLibraryOption :: IO ()
 handleLibraryOption = do
-    option <- getChar
-    _ <- getChar -- Consumir el carácter de nueva línea
+    option <- getLine
+    libraries <- getExistingLibraries
+
     case option of
-        '0' -> putStrLn "Gracias por usar la aplicación. ¡Hasta luego!"
-        'C' -> do
+        "0" -> putStrLn "Gracias por usar la aplicación. ¡Hasta luego!"
+        "C" -> do
             putStrLn "Ingrese el nombre de la nueva biblioteca:"
             newLibraryName <- getLine
             let libraryNameWithPrefix = "Library-" ++ newLibraryName
             createLibrary libraryNameWithPrefix
             putStrLn $ "Se ha creado la biblioteca '" ++ libraryNameWithPrefix ++ "' correctamente."
             showLibraryOptions
-        'D' -> do
+
+        "D" -> do
             putStrLn "Ingrese el nombre de la biblioteca que desea eliminar:"
             libraryToDelete <- getLine
             maybeLibrary <- loadLibrary libraryToDelete
-            case maybeLibrary of
-                Just library -> deleteLibrary library
-                Nothing      -> putStrLn "Error: Biblioteca no encontrada."
+            handleLibraryDeletion maybeLibrary
             showLibraryOptions
-        'M' -> do
+
+        "M" -> do
             putStrLn "Ingrese el nombre de la biblioteca que desea modificar:"
             libraryToModify <- getLine
             putStrLn "Ingrese el nuevo nombre para la biblioteca:"
             newLibraryName <- getLine
             maybeLibrary <- loadLibrary libraryToModify
-            case maybeLibrary of
-                Just library -> modifyLibraryName library newLibraryName
-                Nothing      -> putStrLn "Error: Biblioteca no encontrada."
+            handleLibraryModification maybeLibrary newLibraryName
             showLibraryOptions
-        _   -> do
+
+        _   -> handleLibrarySelection option libraries
+
+handleLibraryActions :: Maybe Library -> IO ()
+handleLibraryActions maybeLibrary =
+    case maybeLibrary of
+        Just library -> do
+            putStrLn $ "Trabajando en la biblioteca '" ++ libraryName library ++ "'."
+            showLibraryOptionsIntern library
+        Nothing      -> do
+            putStrLn "Error: Biblioteca no encontrada."
+            showLibraryOptions
+        
+
+-- Funciones auxiliares para manejar la eliminación y modificación de bibliotecas
+handleLibraryDeletion :: Maybe Library -> IO ()
+handleLibraryDeletion maybeLibrary =
+    case maybeLibrary of
+        Just library -> deleteLibrary library >> putStrLn "Biblioteca eliminada exitosamente."
+        Nothing      -> putStrLn "Error: Biblioteca no encontrada."
+
+handleLibraryModification :: Maybe Library -> String -> IO ()
+handleLibraryModification maybeLibrary newLibraryName =
+    case maybeLibrary of
+        Just library -> modifyLibraryName library newLibraryName >> putStrLn "Nombre de la biblioteca modificado exitosamente."
+        Nothing      -> putStrLn "Error: Biblioteca no encontrada."
+
+handleLibrarySelection :: String -> [String] -> IO ()
+handleLibrarySelection option libraries = do
+    let index = read option :: Int
+    if index >= 1 && index <= length libraries
+        then do
+            let selectedLibrary = libraries !! (index - 1)
+            putStrLn $ "Seleccionaste la biblioteca: " ++ selectedLibrary
+            maybeLibrary <- loadLibrary selectedLibrary
+            handleLibraryActions maybeLibrary >> showLibraryOptions
+        else do
             putStrLn "Opción no válida."
             showLibraryOptions
-
-
--- Función para manejar las acciones de la biblioteca seleccionada
-handleLibraryActions :: Library -> IO ()
-handleLibraryActions library = do
-    putStrLn $ "Estás trabajando en la biblioteca '" ++ libraryName library ++ "'."
-    showLibraryOptionsIntern library
 
 -- Función para mostrar las opciones disponibles y gestionar la entrada del usuario
 showLibraryOptionsIntern :: Library -> IO ()
@@ -105,12 +131,12 @@ handleCategoryOptions library category = do
                 "Libros" -> do
                     books <- loadBooks library
                     mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
-                    addNewBooktoDatabaseBook library 
+                    addNewBookToDatabase library 
                     handleCategoryOptions library category
                 "Miembros" -> do
                     members <- loadMembers library
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
-                    addNewMembertoDatabaseMember library
+                    addNewMemberToDatabase library
                     handleCategoryOptions library category
                 "Transacciones" -> do
                     transactions <- loadTransactions library
@@ -127,13 +153,13 @@ handleCategoryOptions library category = do
                     mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
                     putStrLn "Ingrese el ID del libro que desea eliminar:"
                     bookIdToRemove <- readLn :: IO Int
-                    removeBookFromDatabaseBook library bookIdToRemove
+                    removeBookFromDatabase library bookIdToRemove
                 "Miembros" -> do
                     members <- loadMembers library
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
                     putStrLn "Ingrese el ID del miembro que desea eliminar:"
                     memberIdToRemove <- readLn :: IO Int
-                    removeMemberFromDatabaseMember library memberIdToRemove
+                    removeMemberFromDatabase library memberIdToRemove
                 "Transacciones" -> do
                     transactions <- loadTransactions library
                     mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
@@ -149,7 +175,7 @@ handleCategoryOptions library category = do
                     mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
                     putStrLn "Ingrese el ID del libro que desea modificar:"
                     bookIdToModify <- readLn :: IO Int
-                    modifyBookFromDatabaseBook library bookIdToModify
+                    modifyBookInDatabase library bookIdToModify
                     handleCategoryOptions library category
     
                 "Miembros" -> do
@@ -157,7 +183,7 @@ handleCategoryOptions library category = do
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
                     putStrLn "Ingrese el ID del miembro que desea modificar:"
                     memberIdToModify <- readLn :: IO Int
-                    modifyMemberFromDatabaseMember library memberIdToModify
+                    modifyMemberInDatabase library memberIdToModify
                     handleCategoryOptions library category
                     
                 "Transacciones" -> do

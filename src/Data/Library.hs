@@ -7,14 +7,14 @@ module Data.Library
     , loadBooks
     , loadMembers
     , loadTransactions
-    , addNewBooktoDatabaseBook
-    , removeBookFromDatabaseBook
-    , modifyBookFromDatabaseBook
-    , addNewMembertoDatabaseMember
-    , removeMemberFromDatabaseMember
-    , modifyMemberFromDatabaseMember
-    , deleteLibrary  -- Agregado
-    , modifyLibraryName  -- Agregado
+    , addNewBookToDatabase
+    , removeBookFromDatabase
+    , modifyBookInDatabase
+    , addNewMemberToDatabase
+    , removeMemberFromDatabase
+    , modifyMemberInDatabase
+    , deleteLibrary
+    , modifyLibraryName
     ) where
 
 import Control.Exception (catch, tryJust, IOException)
@@ -25,6 +25,7 @@ import Data.Book (Book(..))
 import Data.Member (Member(..))
 import Data.Transaction (Transaction(..))
 import Data.List (find)
+import Utils
 
 data Library = Library
     { libraryName :: String
@@ -33,6 +34,7 @@ data Library = Library
     , transactionDB :: FilePath
     } deriving (Show, Read)
 
+-- Crear y cargar bibliotecas
 createLibrary :: String -> IO Library
 createLibrary name = do
     let libraryDir = "./" ++ name ++ "/"
@@ -51,7 +53,7 @@ createNewLibrary = do
     newLibraryName <- getLine
     let libraryNameWithPrefix = "Library-" ++ newLibraryName
     createLibrary libraryNameWithPrefix
-    putStrLn $ "Se ha creado la biblioteca '" ++ libraryNameWithPrefix ++ "' correctamente."
+    putStrLn $ "¡Se ha creado la biblioteca '" ++ libraryNameWithPrefix ++ "' correctamente!"
 
 loadLibrary :: String -> IO (Maybe Library)
 loadLibrary name = do
@@ -70,20 +72,20 @@ saveLibrary library = do
     writeFile (memberDB library) ""
     writeFile (transactionDB library) ""
 
--- Función para eliminar una biblioteca con todos sus elementos
+-- Eliminar y modificar bibliotecas
 deleteLibrary :: Library -> IO ()
 deleteLibrary library = do
     removeDirectoryRecursive $ libraryName library
-    putStrLn $ "La biblioteca '" ++ libraryName library ++ "' ha sido eliminada."
+    putStrLn $ "¡La biblioteca '" ++ libraryName library ++ "' ha sido eliminada correctamente!"
 
--- Función para modificar el nombre del directorio de la biblioteca
 modifyLibraryName :: Library -> String -> IO ()
 modifyLibraryName library newLibraryName = do
     let newLibraryDir = "./" ++ newLibraryName ++ "/"
     catch (renameDirectory (libraryName library) newLibraryDir)
         (\e -> putStrLn $ "Error al modificar el nombre de la biblioteca: " ++ show (e :: IOException))
-    putStrLn $ "El nombre de la biblioteca ha sido modificado a '" ++ newLibraryName ++ "'."
+    putStrLn $ "¡El nombre de la biblioteca ha sido modificado a '" ++ newLibraryName ++ "' correctamente!"
 
+-- Cargar libros, miembros y transacciones
 loadBooks :: Library -> IO [Book]
 loadBooks library = do
     content <- readFile (bookDB library)
@@ -99,13 +101,9 @@ loadTransactions library = do
     content <- readFile (transactionDB library)
     return $ if null content then [] else map read $ lines content
 
-writeFileIfNotExists :: FilePath -> String -> IO ()
-writeFileIfNotExists filePath content = do
-    exists <- doesFileExist filePath
-    unless exists $ writeFile filePath content
-
-addNewBooktoDatabaseBook :: Library -> IO ()
-addNewBooktoDatabaseBook library = do
+-- Funciones relacionadas con libros
+addNewBookToDatabase :: Library -> IO ()
+addNewBookToDatabase library = do
     putStrLn "Ingrese los detalles del nuevo libro:"
     putStrLn "ISBN:"
     isbn <- readLn :: IO Int
@@ -129,17 +127,17 @@ addNewBooktoDatabaseBook library = do
             , initialValue = initialValue
             }
 
-    addBookToDatabaseBook library newBook
+    addBookToDatabase library newBook
 
-addBookToDatabaseBook :: Library -> Book -> IO ()
-addBookToDatabaseBook library newBook = do
+addBookToDatabase :: Library -> Book -> IO ()
+addBookToDatabase library newBook = do
     result <- tryJust (guard . isAlreadyInUseError) $ appendFile (bookDB library) (show newBook ++ "\n")
     case result of
         Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el libro."
-        Right _ -> putStrLn "Libro agregado con éxito."
+        Right _ -> putStrLn "¡Libro agregado correctamente a la base de datos!"
 
-removeBookFromDatabaseBook :: Library -> Int -> IO ()
-removeBookFromDatabaseBook library bookIdToRemove = do
+removeBookFromDatabase :: Library -> Int -> IO ()
+removeBookFromDatabase library bookIdToRemove = do
     content <- readFile (bookDB library)
     putStrLn "Contenido leído del archivo:"
     putStrLn content
@@ -153,11 +151,11 @@ removeBookFromDatabaseBook library bookIdToRemove = do
             putStrLn "Libro(s) después de la eliminación:"
             print updatedLibrary
             writeFile (bookDB library) (unlines $ map show updatedLibrary)
-            putStrLn "Libro(s) guardado(s) en la base de datos."
+            putStrLn "¡Libro(s) eliminado(s) correctamente de la base de datos!"
         Nothing -> putStrLn $ "Error: No se encontró ningún libro con el ID " ++ show bookIdToRemove
 
-modifyBookFromDatabaseBook :: Library -> Int -> IO ()
-modifyBookFromDatabaseBook library bookIdToModify = do
+modifyBookInDatabase :: Library -> Int -> IO ()
+modifyBookInDatabase library bookIdToModify = do
     content <- readFile (bookDB library)
     putStrLn "Contenido leído del archivo:"
     putStrLn content
@@ -193,16 +191,14 @@ modifyBookFromDatabaseBook library bookIdToModify = do
 
                 updatedLibrary = map (\book -> if bookId book == bookIdToModify then modifiedBook else book) books
 
-            putStrLn "Libro modificado:"
+            putStrLn "¡Libro modificado correctamente!"
             print modifiedBook
-
             writeFile (bookDB library) (unlines $ map show updatedLibrary)
-            putStrLn "Libro guardado en la base de datos."
-
         Nothing -> putStrLn $ "Error: No se encontró ningún libro con el ID " ++ show bookIdToModify
 
-addNewMembertoDatabaseMember :: Library -> IO ()
-addNewMembertoDatabaseMember library = do
+-- Funciones relacionadas con miembros
+addNewMemberToDatabase :: Library -> IO ()
+addNewMemberToDatabase library = do
     putStrLn "Ingrese los detalles del nuevo miembro:"
     putStrLn "ID del Miembro:"
     memberId <- readLn :: IO Int
@@ -218,17 +214,17 @@ addNewMembertoDatabaseMember library = do
             , borrowedBooks = []
             }
 
-    addMemberToDatabaseMember library newMember
+    addMemberToDatabase library newMember
 
-addMemberToDatabaseMember :: Library -> Member -> IO ()
-addMemberToDatabaseMember library newMember = do
+addMemberToDatabase :: Library -> Member -> IO ()
+addMemberToDatabase library newMember = do
     result <- tryJust (guard . isAlreadyInUseError) $ appendFile (memberDB library) (show newMember ++ "\n")
     case result of
         Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el miembro."
-        Right _ -> putStrLn "Miembro agregado con éxito."
+        Right _ -> putStrLn "¡Miembro agregado correctamente a la base de datos!"
 
-removeMemberFromDatabaseMember :: Library -> Int -> IO ()
-removeMemberFromDatabaseMember library memberIdToRemove = do
+removeMemberFromDatabase :: Library -> Int -> IO ()
+removeMemberFromDatabase library memberIdToRemove = do
     content <- readFile (memberDB library)
     putStrLn "Contenido leído del archivo:"
     putStrLn content
@@ -242,11 +238,11 @@ removeMemberFromDatabaseMember library memberIdToRemove = do
             putStrLn "Miembro(s) después de la eliminación:"
             print updatedLibrary
             writeFile (memberDB library) (unlines $ map show updatedLibrary)
-            putStrLn "Miembro(s) guardado(s) en la base de datos."
+            putStrLn "¡Miembro(s) eliminado(s) correctamente de la base de datos!"
         Nothing -> putStrLn $ "Error: No se encontró ningún miembro con el ID " ++ show memberIdToRemove
 
-modifyMemberFromDatabaseMember :: Library -> Int -> IO ()
-modifyMemberFromDatabaseMember library memberIdToModify = do
+modifyMemberInDatabase :: Library -> Int -> IO ()
+modifyMemberInDatabase library memberIdToModify = do
     content <- readFile (memberDB library)
     putStrLn "Contenido leído del archivo:"
     putStrLn content
@@ -274,10 +270,7 @@ modifyMemberFromDatabaseMember library memberIdToModify = do
 
                 updatedLibrary = map (\member -> if memberId member == memberIdToModify then modifiedMember else member) members
 
-            putStrLn "Miembro modificado:"
+            putStrLn "¡Miembro modificado correctamente!"
             print modifiedMember
-
             writeFile (memberDB library) (unlines $ map show updatedLibrary)
-            putStrLn "Miembro guardado en la base de datos."
-
         Nothing -> putStrLn $ "Error: No se encontró ningún miembro con el ID " ++ show memberIdToModify
