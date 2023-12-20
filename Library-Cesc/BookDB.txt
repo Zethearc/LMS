@@ -1,0 +1,1 @@
+Book {bookId = 1002003001, title = "Hola", author = "Guapos", available = True, stock = 0, borrower = Nothing, dueDate = Nothing, initialValue = 10.0}

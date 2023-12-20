@@ -1,0 +1,1 @@
+Member {memberId = 402019749, memberName = "Dario", memberEmail = "d@gmail.com", borrowedBooks = [Book {bookId = 1002003001, title = "Hola", author = "Guapos", available = False, stock = 1, borrower = Just "402019749", dueDate = Nothing, initialValue = 10.0}]}
