@@ -24,7 +24,7 @@ showLibraryOptions = do
     putStrLn "Ingrese el número o la letra correspondiente a la opción deseada:"
     handleLibraryOption
 
--- Función para manejar la opción seleccionada por el usuario
+-- Función para manejar la  opción seleccionada por el usuario
 handleLibraryOption :: IO ()
 handleLibraryOption = do
     option <- getLine
