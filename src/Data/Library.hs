@@ -13,19 +13,17 @@ module Data.Library
     , addNewMembertoDatabaseMember
     , removeMemberFromDatabaseMember
     , modifyMemberFromDatabaseMember
+    , deleteLibrary  -- Agregado
+    , modifyLibraryName  -- Agregado
     ) where
 
-import Control.Monad (guard)
-import System.IO
-import Control.Exception
-import Control.Concurrent (threadDelay)
-import Text.Read (readMaybe)
-import System.Directory (createDirectoryIfMissing, doesFileExist)
+import Control.Exception (catch, tryJust, IOException)
+import Control.Monad (guard, unless)
+import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, renameDirectory)
+import System.IO.Error (isAlreadyInUseError)
 import Data.Book (Book(..))
 import Data.Member (Member(..))
 import Data.Transaction (Transaction(..))
-import Data.Time.Clock (UTCTime, getCurrentTime)
-import System.IO.Error (isAlreadyInUseError)
 import Data.List (find)
 
 data Library = Library
@@ -72,6 +70,20 @@ saveLibrary library = do
     writeFile (memberDB library) ""
     writeFile (transactionDB library) ""
 
+-- Función para eliminar una biblioteca con todos sus elementos
+deleteLibrary :: Library -> IO ()
+deleteLibrary library = do
+    removeDirectoryRecursive $ libraryName library
+    putStrLn $ "La biblioteca '" ++ libraryName library ++ "' ha sido eliminada."
+
+-- Función para modificar el nombre del directorio de la biblioteca
+modifyLibraryName :: Library -> String -> IO ()
+modifyLibraryName library newLibraryName = do
+    let newLibraryDir = "./" ++ newLibraryName ++ "/"
+    catch (renameDirectory (libraryName library) newLibraryDir)
+        (\e -> putStrLn $ "Error al modificar el nombre de la biblioteca: " ++ show (e :: IOException))
+    putStrLn $ "El nombre de la biblioteca ha sido modificado a '" ++ newLibraryName ++ "'."
+
 loadBooks :: Library -> IO [Book]
 loadBooks library = do
     content <- readFile (bookDB library)
@@ -90,9 +102,7 @@ loadTransactions library = do
 writeFileIfNotExists :: FilePath -> String -> IO ()
 writeFileIfNotExists filePath content = do
     exists <- doesFileExist filePath
-    if not exists
-        then writeFile filePath content
-        else return ()
+    unless exists $ writeFile filePath content
 
 addNewBooktoDatabaseBook :: Library -> IO ()
 addNewBooktoDatabaseBook library = do
@@ -123,8 +133,7 @@ addNewBooktoDatabaseBook library = do
 
 addBookToDatabaseBook :: Library -> Book -> IO ()
 addBookToDatabaseBook library newBook = do
-    result <- tryJust (guard . isAlreadyInUseError) $ withFile (bookDB library) AppendMode $ \handle ->
-        hPutStrLn handle (show newBook)
+    result <- tryJust (guard . isAlreadyInUseError) $ appendFile (bookDB library) (show newBook ++ "\n")
     case result of
         Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el libro."
         Right _ -> putStrLn "Libro agregado con éxito."
@@ -213,8 +222,7 @@ addNewMembertoDatabaseMember library = do
 
 addMemberToDatabaseMember :: Library -> Member -> IO ()
 addMemberToDatabaseMember library newMember = do
-    result <- tryJust (guard . isAlreadyInUseError) $ withFile (memberDB library) AppendMode $ \handle ->
-        hPutStrLn handle (show newMember)
+    result <- tryJust (guard . isAlreadyInUseError) $ appendFile (memberDB library) (show newMember ++ "\n")
     case result of
         Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el miembro."
         Right _ -> putStrLn "Miembro agregado con éxito."

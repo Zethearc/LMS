@@ -20,6 +20,8 @@ showLibraryOptions = do
     libraryNames <- getExistingLibraries
     showOptions 1 libraryNames
     putStrLn "C. Crear una nueva librería"
+    putStrLn "D. Eliminar una biblioteca"
+    putStrLn "M. Modificar una biblioteca"
     putStrLn "0. Salir"
     putStrLn "Ingrese el número o la letra correspondiente a la opción deseada:"
     handleLibraryOption
@@ -27,24 +29,39 @@ showLibraryOptions = do
 -- Función para manejar la opción seleccionada por el usuario
 handleLibraryOption :: IO ()
 handleLibraryOption = do
-    option <- getLine
+    option <- getChar
+    _ <- getChar -- Consumir el carácter de nueva línea
     case option of
-        "0" -> putStrLn "Gracias por usar la aplicación. ¡Hasta luego!"
-        "C" -> createNewLibrary >> showLibraryOptions
+        '0' -> putStrLn "Gracias por usar la aplicación. ¡Hasta luego!"
+        'C' -> do
+            putStrLn "Ingrese el nombre de la nueva biblioteca:"
+            newLibraryName <- getLine
+            let libraryNameWithPrefix = "Library-" ++ newLibraryName
+            createLibrary libraryNameWithPrefix
+            putStrLn $ "Se ha creado la biblioteca '" ++ libraryNameWithPrefix ++ "' correctamente."
+            showLibraryOptions
+        'D' -> do
+            putStrLn "Ingrese el nombre de la biblioteca que desea eliminar:"
+            libraryToDelete <- getLine
+            maybeLibrary <- loadLibrary libraryToDelete
+            case maybeLibrary of
+                Just library -> deleteLibrary library
+                Nothing      -> putStrLn "Error: Biblioteca no encontrada."
+            showLibraryOptions
+        'M' -> do
+            putStrLn "Ingrese el nombre de la biblioteca que desea modificar:"
+            libraryToModify <- getLine
+            putStrLn "Ingrese el nuevo nombre para la biblioteca:"
+            newLibraryName <- getLine
+            maybeLibrary <- loadLibrary libraryToModify
+            case maybeLibrary of
+                Just library -> modifyLibraryName library newLibraryName
+                Nothing      -> putStrLn "Error: Biblioteca no encontrada."
+            showLibraryOptions
         _   -> do
-            let index = read option :: Int
-            libraries <- getExistingLibraries
-            if index >= 1 && index <= length libraries
-                then do
-                    let selectedLibrary = libraries !! (index - 1)
-                    putStrLn $ "Seleccionaste la biblioteca: " ++ selectedLibrary
-                    maybeLibrary <- loadLibrary selectedLibrary
-                    case maybeLibrary of
-                        Just library -> handleLibraryActions library >> showLibraryOptions
-                        Nothing      -> putStrLn "Error al cargar la biblioteca." >> showLibraryOptions
-                else do
-                    putStrLn "Opción no válida."
-                    showLibraryOptions
+            putStrLn "Opción no válida."
+            showLibraryOptions
+
 
 -- Función para manejar las acciones de la biblioteca seleccionada
 handleLibraryActions :: Library -> IO ()

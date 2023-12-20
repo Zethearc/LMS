@@ -1,2 +1,0 @@
-Book {bookId = 1002003002, title = "Hola Wapo", author = "Pruebis Cervantez", available = True, stock = 10, borrower = Nothing, dueDate = Nothing, initialValue = 2.0}
-Book {bookId = 1002001002, title = "Nuevis", author = "Holis", available = True, stock = 12, borrower = Nothing, dueDate = Nothing, initialValue = 3.0}
