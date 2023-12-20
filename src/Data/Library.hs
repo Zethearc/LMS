@@ -8,12 +8,13 @@ module Data.Library
     , loadMembers
     , loadTransactions
     , addNewBook
+    , removeBookFromDatabase
     ) where
 
 import Control.Monad (guard)
 import System.IO
 import Control.Exception
-import Control.Concurrent (threadDelay)  -- Agrega esta línea
+import Control.Concurrent (threadDelay)
 import Text.Read (readMaybe)
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import Data.Book (Book(..))
@@ -21,7 +22,7 @@ import Data.Member (Member(..))
 import Data.Transaction (Transaction(..))
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import System.IO.Error (isAlreadyInUseError)
-
+    
 data Library = Library
     { libraryName :: String
     , bookDB :: FilePath
@@ -132,3 +133,17 @@ addBookToDatabase library newBook = do
     case result of
         Left _  -> putStrLn "Error: El archivo está en uso. No se pudo agregar el libro."
         Right _ -> putStrLn "Libro agregado con éxito."
+
+removeBookFromDatabase :: Library -> Int -> IO ()
+removeBookFromDatabase library bookIdToRemove = do
+    content <- readFile (bookDB library)
+    putStrLn "Contenido leído del archivo:"
+    putStrLn content
+    let books = map read $ lines content :: [Book]
+        updatedLibrary = filter (\book -> bookId book /= bookIdToRemove) books
+    putStrLn "Libro(s) antes de la eliminación:"
+    print books
+    putStrLn "Libro(s) después de la eliminación:"
+    print updatedLibrary
+    writeFile (bookDB library) (unlines $ map show updatedLibrary)
+    putStrLn "Libro(s) guardado(s) en la base de datos."

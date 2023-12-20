@@ -104,11 +104,14 @@ handleCategoryOptions library category = do
             handleCategoryOptions library category
 
         "2" -> do
-            -- Lógica para Ingresar en la categoría
+            -- Lógica para Eliminar en la categoría
             case category of
                 "Libros" -> do
                     books <- loadBooks library
                     mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)
+                    putStrLn "Ingrese el ID del libro que desea eliminar:"
+                    bookIdToRemove <- readLn :: IO Int
+                    removeBookFromDatabase library bookIdToRemove
                 "Miembros" -> do
                     members <- loadMembers library
                     mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
@@ -117,6 +120,7 @@ handleCategoryOptions library category = do
                     mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
                 _ -> putStrLn "Categoría no válida."
             handleCategoryOptions library category
+            
         "3" -> do
             -- Lógica para Ingresar en la categoría
             case category of
