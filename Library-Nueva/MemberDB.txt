@@ -1,0 +1,5 @@
+Member {memberId = 1, memberName = "Juan Perez", memberEmail = "juan@example.com", borrowedBooks = []}
+Member {memberId = 2, memberName = "Maria Rodriguez", memberEmail = "maria@example.com", borrowedBooks = []}
+Member {memberId = 3, memberName = "Carlos Gutierrez", memberEmail = "carlos@example.com", borrowedBooks = []}
+Member {memberId = 4, memberName = "Ana Martinez", memberEmail = "ana@example.com", borrowedBooks = []}
+Member {memberId = 5, memberName = "Pedro Lopez", memberEmail = "pedro@example.com", borrowedBooks = []}

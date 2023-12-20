@@ -2,20 +2,14 @@ name:                library-management-system
 version:             0.1.0.0
 license:             MIT
 license-file:        LICENSE
-author:              Darío S. Cabezas
-maintainer:          dario.cabezas@yachaytech.edu.ec
+author:              Cabezas Erazo Dario Sebastian, Jimenez Vaca Edison Alonso, Conza Fajardo Jefferson Alfredo
+maintainer:          dario.cabezas@yachaytech.edu.ec, edison.jimenez@yachaytech.edu.ec, jefferson.conza@yachaytech.edu.ec
 build-type:          Simple
 cabal-version:       >=1.10
 
 executable library-management-system
   main-is:             Main.hs
   hs-source-dirs:      src, app
-  other-modules:       Data.Book, Data.Member, Data.Library, Utils
-  build-depends:       base, containers, directory
-
-test-suite tests
-  type: exitcode-stdio-1.0
-  main-is: MemberTest.hs
-  hs-source-dirs: test
-  build-depends: base, HUnit
-  default-language: Haskell2010
+  other-modules:       Data.Book, Data.Member, Data.Library, Data.Transaction
+  build-depends:       base, containers, directory, time
+  default-language:    Haskell2010
