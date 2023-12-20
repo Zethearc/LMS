@@ -2,9 +2,12 @@
 
 module Main where
 
-import System.Directory (getDirectoryContents, createDirectoryIfMissing)
-import Data.List (isPrefixOf)
 import Data.Library
+import Utils
+
+import Data.Book (Book(..))
+import Data.Member (Member(..))
+import Data.Transaction (Transaction(..))
 
 main :: IO ()
 main = do
@@ -48,8 +51,6 @@ handleLibraryOption = do
 handleLibraryActions :: Library -> IO ()
 handleLibraryActions library = do
     putStrLn $ "Estás trabajando en la biblioteca '" ++ libraryName library ++ "'."
-    -- Puedes agregar más acciones relacionadas con la biblioteca aquí
-    -- Ejemplo: Menú para administrar libros, miembros, transacciones, etc.
     showLibraryOptionsIntern library
 
 -- Función para mostrar las opciones disponibles y gestionar la entrada del usuario
@@ -66,46 +67,24 @@ showLibraryOptionsIntern library = do
         "1" -> do
             -- Lógica para gestionar libros
             putStrLn "Gestionar Libros"
-            -- Puedes llamar a funciones específicas relacionadas con libros aquí
-            showLibraryOptionsIntern library
+            books <- loadBooks library
+            -- Mostrar los libros en la interfaz gráfica
+            mapM_ (\(index, book) -> putStrLn $ show index ++ ". " ++ displayBook book) (zip [1..] books)     
         "2" -> do
             -- Lógica para gestionar miembros
             putStrLn "Gestionar Miembros"
-            -- Puedes llamar a funciones específicas relacionadas con miembros aquí
-            showLibraryOptionsIntern library
+            members <- loadMembers library
+            -- Mostrar los miembros en la interfaz gráfica
+            mapM_ (\(index, member) -> putStrLn $ show index ++ ". " ++ displayMember member) (zip [1..] members)
+    
         "3" -> do
             -- Lógica para gestionar transacciones
             putStrLn "Gestionar Transacciones"
-            -- Puedes llamar a funciones específicas relacionadas con transacciones aquí
-            showLibraryOptionsIntern library
+            transactions <- loadTransactions library
+            -- Mostrar las transacciones en la interfaz gráfica
+            mapM_ (\(index, transaction) -> putStrLn $ show index ++ ". " ++ displayTransaction transaction) (zip [1..] transactions)
+            
         "4" -> putStrLn "Saliendo del programa."
         _ -> do
             putStrLn "Opción no válida. Por favor, seleccione una opción válida."
             showLibraryOptionsIntern library
-
--- Función para obtener la lista de bibliotecas existentes
-getExistingLibraries :: IO [String]
-getExistingLibraries = do
-    contents <- getDirectoryContents "./"
-    let libraryNames = filter (`notElem` [".", ".."]) contents
-    return $ filter isLibraryDirectory libraryNames
-
--- Función para determinar si un directorio es una biblioteca
-isLibraryDirectory :: String -> Bool
-isLibraryDirectory dir = "Library-" `isPrefixOf` dir
-
--- Función para mostrar opciones numeradas
-showOptions :: Int -> [String] -> IO ()
-showOptions _ [] = return ()
-showOptions index (opt:opts) = do
-    putStrLn $ show index ++ ". " ++ opt
-    showOptions (index + 1) opts
-    
--- Función para crear una nueva biblioteca
-createNewLibrary :: IO ()
-createNewLibrary = do
-    putStrLn "Ingrese el nombre de la nueva biblioteca:"
-    newLibraryName <- getLine
-    let libraryNameWithPrefix = "Library-" ++ newLibraryName
-    createLibrary libraryNameWithPrefix
-    putStrLn $ "Se ha creado la biblioteca '" ++ libraryNameWithPrefix ++ "' correctamente."

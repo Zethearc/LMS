@@ -1,5 +1,5 @@
 module Data.Book
-    ( Book (..)
+    ( Book(..)
     , addBook
     , createBook
     , readBook
@@ -8,6 +8,7 @@ module Data.Book
     ) where
 
 import Data.Time (UTCTime)
+import Data.List (find)
 
 data Book = Book
     { bookId :: Int
@@ -20,38 +21,31 @@ data Book = Book
     , initialValue :: Double
     } deriving (Show, Read)
 
-addBook :: Book -> [Book] -> [Book]
-addBook book books = book : books
+-- Función para agregar un nuevo libro
+addBook :: [Book] -> Book -> [Book]
+addBook books newBook = books ++ [newBook]
 
-createBook :: Int -> String -> String -> Bool -> Int -> Maybe String -> Maybe UTCTime -> Double -> Book
-createBook bookId title author available stock borrower dueDate initialValue =
-    Book bookId title author available stock borrower dueDate initialValue
+-- Función para crear un nuevo libro
+createBook :: Int -> String -> String -> Int -> Double -> Book
+createBook bookId title author stock initialValue = Book
+    { bookId = bookId
+    , title = title
+    , author = author
+    , available = True
+    , stock = stock
+    , borrower = Nothing
+    , dueDate = Nothing
+    , initialValue = initialValue
+    }
 
-readBook :: Book -> String
-readBook book =
-    "ID del Libro: " ++ show (bookId book) ++
-    "\nTítulo: " ++ title book ++
-    "\nAutor: " ++ author book ++
-    "\nDisponible: " ++ show (available book) ++
-    "\nExistencias: " ++ show (stock book) ++
-    (case borrower book of
-        Just borrowerName -> "\nTomado por: " ++ borrowerName
-        Nothing -> "") ++
-    (case dueDate book of
-        Just date -> "\nFecha de devolución: " ++ show date
-        Nothing -> "") ++
-    "\nValor inicial: " ++ show (initialValue book)
+-- Función para leer un libro
+readBook :: [Book] -> Int -> Maybe Book
+readBook books targetBookId = find (\book -> bookId book == targetBookId) books
 
-updateBook :: Book -> String -> String -> Bool -> Int -> Maybe String -> Maybe UTCTime -> Double -> Book
-updateBook book newTitle newAuthor newAvailability newStock newBorrower newDueDate newInitialValue =
-    book { title = newTitle
-         , author = newAuthor
-         , available = newAvailability
-         , stock = newStock
-         , borrower = newBorrower
-         , dueDate = newDueDate
-         , initialValue = newInitialValue
-         }
+-- Función para actualizar un libro
+updateBook :: [Book] -> Book -> [Book]
+updateBook books updatedBook = map (\book -> if bookId book == bookId updatedBook then updatedBook else book) books
 
-deleteBook :: Book -> Book
-deleteBook book = book { available = False }
+-- Función para eliminar un libro
+deleteBook :: [Book] -> Int -> [Book]
+deleteBook books bookIdToRemove = filter (\book -> bookId book /= bookIdToRemove) books

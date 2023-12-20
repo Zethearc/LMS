@@ -10,7 +10,7 @@ import Data.Member (Member)
 import Data.Book (Book)
 
 data Transaction = BorrowTransaction
-  { borrower :: Member
+  { transactionBorrower :: Member
   , borrowedBook :: Book
   , transactionDate :: UTCTime
   }
@@ -22,7 +22,7 @@ data Transaction = BorrowTransaction
 
 borrowTransaction :: Member -> Book -> UTCTime -> Transaction
 borrowTransaction member book date =
-  BorrowTransaction { borrower = member, borrowedBook = book, transactionDate = date }
+  BorrowTransaction { transactionBorrower = member, borrowedBook = book, transactionDate = date }
 
 returnTransaction :: Member -> Book -> UTCTime -> Transaction
 returnTransaction member book date =
